@@ -1,4 +1,5 @@
 # Ignore everything in this directory
 *
+Sudoku/
 # Except this file
 !.gitignore

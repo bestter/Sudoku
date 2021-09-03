@@ -10,6 +10,7 @@
     <None Include="..\LICENSE" Link="LICENSE">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Sudoku.sln" />
   </ItemGroup>
 
   <ItemGroup>

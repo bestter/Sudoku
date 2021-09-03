@@ -1,13 +1,25 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Sudoku.Models;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿/*
+ This file is part of BestterSudoku.
 
-namespace Sudoku.Controllers
+    BestterSudoku is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Foobar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with BestterSudoku.  If not, see <https://www.gnu.org/licenses/>
+ */
+using BestterSudoku.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+
+namespace BestterSudoku.Controllers
 {
     public class SudokuController : Controller
     {
@@ -36,7 +48,7 @@ namespace Sudoku.Controllers
         public ActionResult Resolve()
         {
             SudokuGrid grid = new();
-            
+
             grid.SetValue(0, 1, 4, true);
             grid.SetValue(0, 5, 8, true);
             grid.SetValue(0, 6, 7, true);
@@ -121,7 +133,7 @@ namespace Sudoku.Controllers
             int nbTry = 0;
             try
             {
-                nbTry= grid.Resolve();
+                nbTry = grid.Resolve();
             }
             finally
             {

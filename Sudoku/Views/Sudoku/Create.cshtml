@@ -1,0 +1,63 @@
+﻿@model Sudoku.Models.SudokuGrid
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>SudokuGrid</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="CreationTime" class="control-label"></label>
+                <input asp-for="CreationTime" class="form-control" />
+                <span asp-validation-for="CreationTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <table style="border: 1px solid black;">
+        @if (@Model != null)
+        {
+            var grids = Model.GetValues();
+            @for (int i = 0; i <= 2; i++)
+            {
+                <tr>
+                    @for (int j = 0; j <= 2; j++)
+                    {
+                        SudokuSubGrid grid = grids[i, j];
+                        <td style="border: 2px solid black;">
+                            <table>
+
+                                @for (int ia = 0; ia <= 2; ia++)
+                                {
+                                    <tr>
+
+                                        @for (int ja = 0; ja <= 2; ja++)
+                                        {
+                                        <td style="border: 3px solid fuchsia; width: 2em; height:2em;">@Html.Raw(grid.GetValue(ia, ja).ToString())</td>
+                                        }
+                                    </tr>
+                                }
+                            </table>
+                        </td>
+                    }
+                </tr>
+            }
+        }
+    </table>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 
-namespace Sudoku.Models
+namespace BestterSudoku.Models
 {
     public class SubGridValue
     {
@@ -41,6 +40,14 @@ namespace Sudoku.Models
         public SudokuSubGrid(byte x, byte y)
         {
             subGrid = new SubGridValue[3, 3];
+            for (int i = 0;  i<=2; i++)
+            {
+                for (int j=0; j<=2; j++)
+                {
+                    subGrid[i, j] = new SubGridValue();
+                }
+            }
+
             Position = new Coordinate(x, y);
         }
 

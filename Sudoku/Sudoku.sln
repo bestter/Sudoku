@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sudoku", "Sudoku.csproj", "{13902F7B-3517-4F4C-8525-CAAE953175FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BestterSudoku", "BestterSudoku.csproj", "{13902F7B-3517-4F4C-8525-CAAE953175FA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{89558C1C-31C0-4D45-99B1-94AD9B76252F}"
+	ProjectSection(SolutionItems) = preProject
+		..\LICENSE = ..\LICENSE
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

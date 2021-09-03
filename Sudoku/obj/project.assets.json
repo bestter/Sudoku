@@ -6238,9 +6238,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Source\\Repos\\Sudoku\\Sudoku\\Sudoku.csproj",
-      "projectName": "Sudoku",
-      "projectPath": "C:\\Users\\User\\Source\\Repos\\Sudoku\\Sudoku\\Sudoku.csproj",
+      "projectUniqueName": "C:\\Users\\User\\Source\\Repos\\Sudoku\\Sudoku\\BestterSudoku.csproj",
+      "projectName": "BestterSudoku",
+      "projectPath": "C:\\Users\\User\\Source\\Repos\\Sudoku\\Sudoku\\BestterSudoku.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\User\\Source\\Repos\\Sudoku\\Sudoku\\obj\\",
       "projectStyle": "PackageReference",

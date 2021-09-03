@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\Source\\Repos\\Sudoku\\Sudoku\\BestterSudoku.csproj": {}
+    "C:\\Users\\User\\source\\repos\\Sudoku\\Sudoku\\BestterSudoku.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\Source\\Repos\\Sudoku\\Sudoku\\BestterSudoku.csproj": {
+    "C:\\Users\\User\\source\\repos\\Sudoku\\Sudoku\\BestterSudoku.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\Source\\Repos\\Sudoku\\Sudoku\\BestterSudoku.csproj",
+        "projectUniqueName": "C:\\Users\\User\\source\\repos\\Sudoku\\Sudoku\\BestterSudoku.csproj",
         "projectName": "BestterSudoku",
-        "projectPath": "C:\\Users\\User\\Source\\Repos\\Sudoku\\Sudoku\\BestterSudoku.csproj",
+        "projectPath": "C:\\Users\\User\\source\\repos\\Sudoku\\Sudoku\\BestterSudoku.csproj",
         "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\Source\\Repos\\Sudoku\\Sudoku\\obj\\",
+        "outputPath": "C:\\Users\\User\\source\\repos\\Sudoku\\Sudoku\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"

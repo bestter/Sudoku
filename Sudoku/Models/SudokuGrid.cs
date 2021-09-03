@@ -1,13 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Security.Cryptography;
-using Sudoku.Utility;
-using System.Text;
-using System.Diagnostics;
+﻿/*
+ This file is part of BestterSudoku.
 
-namespace Sudoku.Models
+    BestterSudoku is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Foobar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with BestterSudoku.  If not, see <https://www.gnu.org/licenses/>
+ */
+using BestterSudoku.Utility;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace BestterSudoku.Models
 {
     public class SudokuGrid
     {
@@ -33,7 +48,7 @@ namespace Sudoku.Models
 
         public void SetValue(int line, int column, byte value, bool isDefinition = false)
         {
-            if (line< 0 || line > 8)
+            if (line < 0 || line > 8)
             {
                 throw new ArgumentOutOfRangeException(nameof(line), line, $"{nameof(line)} must be between 0 and 8");
             }
@@ -204,8 +219,8 @@ namespace Sudoku.Models
         }
 
         public int Resolve()
-        {            
-            int nbTry = 0;            
+        {
+            int nbTry = 0;
             while (HasEmptyValue && nbTry < 10)
             {
                 for (int line = 0; line <= 8; line++)
@@ -249,7 +264,7 @@ namespace Sudoku.Models
                                 {
                                     numbersOnPreviousLine.AddRange(GetNumbersOnLine(line - 1));
                                 }
-                                
+
 
                                 if (line < 8)
                                 {
@@ -264,7 +279,7 @@ namespace Sudoku.Models
                                 {
                                     numbersOnPreviousColumn.AddRange(SudokuSubGrid.Digits);
                                 }
-                                if (column>0)
+                                if (column > 0)
                                 {
                                     numbersOnPreviousColumn.AddRange(GetNumbersOnColumn(column - 1));
                                 }
@@ -274,7 +289,7 @@ namespace Sudoku.Models
                                     numbersOnNextColumn.AddRange(GetNumbersOnColumn(column + 1));
                                 }
 
-                                if(column == 8)
+                                if (column == 8)
                                 {
                                     numbersOnNextColumn.AddRange(SudokuSubGrid.Digits);
                                 }
@@ -284,15 +299,15 @@ namespace Sudoku.Models
                                     numbersOnPreviousColumn.Any(n => n == number) &&
                                     numbersOnNextColumn.Any(n => n == number)
                                     )
-                                {                                    
+                                {
                                     okToAdd = true;
                                 }
 
                                 //if (!okToAdd)
                                 //{
-                                    
+
                                 //}
-                                
+
 
                                 if (okToAdd)
                                 {
@@ -302,14 +317,14 @@ namespace Sudoku.Models
                                         break;
                                     }
                                 }
-                                
+
                             }
                         }
                     }
                 }
                 nbTry++;
             }
-            
+
 
             return nbTry;
         }
@@ -336,7 +351,7 @@ namespace Sudoku.Models
                 {
                     for (int j = 0; j <= 2; j++)
                     {
-                        if (subGrids[i,j].HasEmptyValue)
+                        if (subGrids[i, j].HasEmptyValue)
                         {
                             hasEmptyValue = true;
                             break;

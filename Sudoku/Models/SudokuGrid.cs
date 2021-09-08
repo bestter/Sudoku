@@ -220,11 +220,11 @@ namespace BestterSudoku.Models
 
         public int Resolve()
         {
-            int nbTry = 0;            
-            while (HasEmptyValue && nbTry < 12)
+            int nbTry = 0;
+            bool valueHasBeenSet = false;
+            do
             {
-                bool valueHasBeenSet = false;
-                /*
+                valueHasBeenSet = false;
                 for (int line = 0; line <= 8; line++)
                 {
                     for (int column = 0; column <= 8; column++)
@@ -248,72 +248,72 @@ namespace BestterSudoku.Models
                                 break;
                             }
                         }
-                        else if (availableNumbers.Count > 1)
-                        {
-                            
-                            
-                            foreach (var number in availableNumbers)
-                            {
-                                bool okToAdd = false;
-                                List<byte> numbersOnPreviousLine = new();
-                                List<byte> numbersOnNextLine = new();
-                                List<byte> numbersOnPreviousColumn = new();
-                                List<byte> numbersOnNextColumn = new();
-
-                                if (line == 0)
-                                {
-                                    numbersOnPreviousLine.AddRange(SudokuSubGrid.Digits);
-                                }
-                                if (line > 0)
-                                {
-                                    numbersOnPreviousLine.AddRange(GetNumbersOnLine(line - 1));
-                                }
-
-                                if (line < 8)
-                                {
-                                    numbersOnNextLine.AddRange(GetNumbersOnLine(line + 1));
-                                }
-                                if (line == 8)
-                                {
-                                    numbersOnNextLine.AddRange(SudokuSubGrid.Digits);
-                                }
-
-                                if (column == 0)
-                                {
-                                    numbersOnPreviousColumn.AddRange(SudokuSubGrid.Digits);
-                                }
-                                if (column > 0)
-                                {
-                                    numbersOnPreviousColumn.AddRange(GetNumbersOnColumn(column - 1));
-                                }
-
-                                if (column < 8)
-                                {
-                                    numbersOnNextColumn.AddRange(GetNumbersOnColumn(column + 1));
-                                }
-
-                                if (column == 8)
-                                {
-                                    numbersOnNextColumn.AddRange(SudokuSubGrid.Digits);
-                                }
-
-                                if (numbersOnPreviousLine.Any(n => n == number) &&
-                                    numbersOnNextLine.Any(n => n == number) &&
-                                    numbersOnPreviousColumn.Any(n => n == number) &&
-                                    numbersOnNextColumn.Any(n => n == number)
-                                    )
-                                {
-                                    okToAdd = true;
-                                }
+                        /* else if (availableNumbers.Count > 1)
+                         {
 
 
-                                if (okToAdd && IsNumberAvailable(number, line, column))
-                                {
-                                    SetValue(line, column, number);
-                                    break;
-                                }                            
-                            }                            
-                        }
+                             foreach (var number in availableNumbers)
+                             {
+                                 bool okToAdd = false;
+                                 List<byte> numbersOnPreviousLine = new();
+                                 List<byte> numbersOnNextLine = new();
+                                 List<byte> numbersOnPreviousColumn = new();
+                                 List<byte> numbersOnNextColumn = new();
+
+                                 if (line == 0)
+                                 {
+                                     numbersOnPreviousLine.AddRange(SudokuSubGrid.Digits);
+                                 }
+                                 if (line > 0)
+                                 {
+                                     numbersOnPreviousLine.AddRange(GetNumbersOnLine(line - 1));
+                                 }
+
+                                 if (line < 8)
+                                 {
+                                     numbersOnNextLine.AddRange(GetNumbersOnLine(line + 1));
+                                 }
+                                 if (line == 8)
+                                 {
+                                     numbersOnNextLine.AddRange(SudokuSubGrid.Digits);
+                                 }
+
+                                 if (column == 0)
+                                 {
+                                     numbersOnPreviousColumn.AddRange(SudokuSubGrid.Digits);
+                                 }
+                                 if (column > 0)
+                                 {
+                                     numbersOnPreviousColumn.AddRange(GetNumbersOnColumn(column - 1));
+                                 }
+
+                                 if (column < 8)
+                                 {
+                                     numbersOnNextColumn.AddRange(GetNumbersOnColumn(column + 1));
+                                 }
+
+                                 if (column == 8)
+                                 {
+                                     numbersOnNextColumn.AddRange(SudokuSubGrid.Digits);
+                                 }
+
+                                 if (numbersOnPreviousLine.Any(n => n == number) &&
+                                     numbersOnNextLine.Any(n => n == number) &&
+                                     numbersOnPreviousColumn.Any(n => n == number) &&
+                                     numbersOnNextColumn.Any(n => n == number)
+                                     )
+                                 {
+                                     okToAdd = true;
+                                 }
+
+
+                                 if (okToAdd && IsNumberAvailable(number, line, column))
+                                 {
+                                     SetValue(line, column, number);
+                                     break;
+                                 }                            
+                             }                            
+                         }*/
 
                         var availableNumbersOnGrid = SudokuSubGrid.Digits.Except(GetNumbersInGrid(line, column)).ToList();
                         if (availableNumbersOnGrid.Count == 1)
@@ -322,6 +322,7 @@ namespace BestterSudoku.Models
                             if (IsNumberAvailable(number, line, column))
                             {
                                 SetValue(line, column, number);
+                                valueHasBeenSet = true;
                             }
                         }
                         foreach (var number in availableNumbersOnGrid)
@@ -329,11 +330,12 @@ namespace BestterSudoku.Models
                             if (IsNumberAvailable(number, line, column))
                             {
                                 SetValue(line, column, number);
+                                valueHasBeenSet = true;
                             }
                         }
-                        
+
                     }
-                }*/
+                }
 
                 List<GridValue> possibleValues = new();
 
@@ -419,12 +421,8 @@ namespace BestterSudoku.Models
                     }
                 }
 
-                if (!valueHasBeenSet)
-                {
-                    break;
-                }
-                nbTry++;
-            }
+
+            } while (valueHasBeenSet == true);
 
 
             return nbTry;

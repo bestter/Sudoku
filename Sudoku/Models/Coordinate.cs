@@ -37,7 +37,7 @@ namespace BestterSudoku.Models
 
         public override int GetHashCode()
         {
-            return (new { A = X, B = Y }).GetHashCode();
+            return System.HashCode.Combine(X, Y);
         }
 
         public override bool Equals(object obj)

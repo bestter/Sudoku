@@ -7,7 +7,14 @@ namespace BestterSudoku.Models
 {
     public class SubGridValue
     {
+        /// <summary>
+        /// Is a definition value
+        /// </summary>
         public bool IsDefinition { get; }
+        
+        /// <summary>
+        /// The actual value
+        /// </summary>
         public byte Value { get; }
 
         public static implicit operator byte(SubGridValue v) => v.Value;
@@ -124,11 +131,21 @@ namespace BestterSudoku.Models
             subGrid[x, y] = new SubGridValue(value, isDefinition);
         }
 
+        /// <summary>
+        /// Get value at <paramref name="x"/> and <paramref name="y"/>
+        /// </summary>
+        /// <param name="x">the line</param>
+        /// <param name="y">the column</param>
+        /// <returns></returns>
         public SubGridValue GetValue(int x, int y)
         {
             return subGrid[x, y];
         }
 
+        /// <summary>
+        /// fill the <see cref="SudokuSubGrid"/> with <paramref name="values"/>
+        /// </summary>
+        /// <param name="values">values to put in this grid</param>
         public void Fill(IEnumerable<byte> values)
         {
             byte[] data = values.ToArray();

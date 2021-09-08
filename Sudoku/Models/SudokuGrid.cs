@@ -421,8 +421,16 @@ namespace BestterSudoku.Models
                     }
                 }
 
+                if (!valueHasBeenSet)
+                {
+                    nbTry++;
+                }
+                else if (valueHasBeenSet && nbTry > 0)
+                {
+                    nbTry = 0;
+                }
 
-            } while (valueHasBeenSet == true);
+            } while (valueHasBeenSet || nbTry < 3);
 
 
             return nbTry;

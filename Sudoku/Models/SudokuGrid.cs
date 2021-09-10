@@ -235,7 +235,7 @@ namespace BestterSudoku.Models
         {
 
             for (int j = 0; j < 9; j++)
-                if (grids[line, j] == k)
+                if (grids[line, j].Value == k)
                     return false;
             return true;
         }
@@ -244,7 +244,7 @@ namespace BestterSudoku.Models
         {
 
             for (int i = 0; i < 9; i++)
-                if (grids[i, column] == k)
+                if (grids[i, column].Value == k)
                     return false;
             return true;
         }
@@ -254,7 +254,7 @@ namespace BestterSudoku.Models
             int _i = i - (i % 3), _j = j - (j % 3);  // ou encore : _i = 3*(i/3), _j = 3*(j/3);
             for (i = _i; i < _i + 3; i++)
                 for (j = _j; j < _j + 3; j++)
-                    if (grids[i, j] == k)
+                    if (grids[i, j].Value == k)
                         return false;
             return true;
         }
@@ -277,7 +277,7 @@ namespace BestterSudoku.Models
 
             int line = position / 9, column = position % 9;
 
-            if (grids[line, column] != 0)
+            if (grids[line, column].Value != 0)
             {
                 return EstValide(position + 1);
             }

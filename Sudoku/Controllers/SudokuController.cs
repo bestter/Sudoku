@@ -30,11 +30,6 @@ namespace BestterSudoku.Controllers
             return View();
         }
 
-        // GET: SudokuController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
 
         // GET: SudokuController/Create
         public ActionResult Create()
@@ -49,7 +44,7 @@ namespace BestterSudoku.Controllers
         public ActionResult Resolve()
         {
             SudokuGrid grid = new();
-            
+
             grid.SetValue(0, 0, 9, true);
             grid.SetValue(0, 3, 1, true);
             grid.SetValue(0, 8, 5, true);
@@ -73,7 +68,7 @@ namespace BestterSudoku.Controllers
             grid.SetValue(6, 0, 2, true);
             grid.SetValue(6, 3, 3, true);
             grid.SetValue(6, 8, 6, true);
-            
+
             grid.SetValue(7, 3, 2, true);
             grid.SetValue(7, 6, 9, true);
 
@@ -82,7 +77,7 @@ namespace BestterSudoku.Controllers
             grid.SetValue(8, 5, 4, true);
             grid.SetValue(8, 6, 5, true);
             grid.SetValue(8, 7, 7, true);
-            
+
 
             /*
             grid.SetValue(0, 1, 4, true);
@@ -202,10 +197,6 @@ namespace BestterSudoku.Controllers
         }
 
         // GET: SudokuController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
 
         // POST: SudokuController/Edit/5
         [HttpPost]
@@ -222,11 +213,6 @@ namespace BestterSudoku.Controllers
             }
         }
 
-        // GET: SudokuController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
 
         // POST: SudokuController/Delete/5
         [HttpPost]

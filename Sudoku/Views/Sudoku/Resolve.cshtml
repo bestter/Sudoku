@@ -34,16 +34,16 @@
                             <table>
                                 <tr>
                                     @{
-                                        byte value = grids[i, j];
-                                        <td style="border: 3px dotted fuchsia; width: 2em; height:2em;">@Html.Raw(value.ToString())</td>
-                                        @*if (value.IsDefinition)
-            {
-                <td style="border: 2px solid black; width: 2em; height:2em;">@Html.Raw(value.Value.ToString())</td>
-            }
-            else
-            {
-                <td style="border: 3px dotted fuchsia; width: 2em; height:2em;">@Html.Raw(value.Value.ToString())</td>
-            }*@
+                                        GridValue value = grids[i, j];
+
+                                        @if (value.IsDefinition)
+                                        {
+                                            <td style="border: 2px solid black; width: 2em; height:2em;">@Html.Raw(value.Value.ToString())</td>
+                                        }
+                                        else
+                                        {
+                                            <td style="border: 3px dotted fuchsia; width: 2em; height:2em;">@Html.Raw(value.Value.ToString())</td>
+                                        }
                                     }
                                 </tr>
 

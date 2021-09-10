@@ -21,8 +21,11 @@ namespace BestterSudoku.Models
     /// <summary>
     /// Grid value
     /// </summary>
-    public class GridValue: IEquatable<GridValue>
+    public class GridValue: IEquatable<GridValue>, IComparable, IComparable<GridValue>
     {
+        /// <summary>
+        /// Coordinater of this <see cref="GridValue"/>
+        /// </summary>
         public Coordinate Coordinate { get; }
 
         /// <summary>
@@ -36,7 +39,12 @@ namespace BestterSudoku.Models
         public byte Value { get; private set; }
 
         public static implicit operator byte(GridValue v) => v.Value;
-                
+
+        /// <summary>
+        /// Create a <see cref="GridValue"/>
+        /// </summary>
+        /// <param name="line">X</param>
+        /// <param name="column">Y</param>
         public GridValue(byte line, byte column)
         {
             Coordinate = new Coordinate(line, column);
@@ -81,6 +89,66 @@ namespace BestterSudoku.Models
                 return Coordinate.Equals(other.Coordinate) && IsDefinition.Equals(other.IsDefinition) && Value.Equals(other.Value);
             }
             return false;
+        }
+
+        public int CompareTo(object obj)
+        {
+            GridValue other = obj as GridValue;
+            if (other != null)
+            {
+                return CompareTo(other);
+            }
+            return 999;
+        }
+
+        public int CompareTo(GridValue other)
+        {
+            if (other != null)
+            {
+                int compareValue = Coordinate.CompareTo(other.Coordinate);
+                if (compareValue == 0)
+                {
+                    //Should never occur
+                    compareValue = Value.CompareTo(other.Value);
+                }
+                return compareValue;
+            }
+            return 999;
+        }
+
+        public static bool operator ==(GridValue left, GridValue right)
+        {
+            if (left is null)
+            {
+                return right is null;
+            }
+
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(GridValue left, GridValue right)
+        {
+            return !(left == right);
+        }
+
+        public static bool operator <(GridValue left, GridValue right)
+        {
+            return left is null ? right is not null : left.CompareTo(right) < 0;
+        }
+
+        public static bool operator <=(GridValue left, GridValue right)
+        {
+            return left is null || left.CompareTo(right) <= 0;
+        }
+
+        public static bool operator >(GridValue left, GridValue right)
+        {
+            return left is not null && left.CompareTo(right) > 0;
+        }
+
+        public static bool operator >=(GridValue left, GridValue right)
+        {
+            return left is null ? right is null : left.CompareTo(right) >= 0;
         }
     }
 }

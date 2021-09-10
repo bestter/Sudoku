@@ -33,6 +33,8 @@ namespace BestterSudoku.Models
 
         readonly SudokuSubGrid[,] subGrids;
 
+        private long numberOfCall;
+
         public SudokuGrid()
         {
             subGrids = new SudokuSubGrid[3, 3];
@@ -218,55 +220,58 @@ namespace BestterSudoku.Models
             return true;
         }
 
-        public int Resolve()
+        public long Resolve()
         {
-            int nbTry = 0;
-            bool valueHasBeenSet;
+            //int nbTry = 0;
+            //bool valueHasBeenSet;
 
-            //first thing first
-            do
-            {
-                valueHasBeenSet = FillGrid(3, 3, 5, 5);
+            ////first thing first
+            //do
+            //{
+            //    valueHasBeenSet = FillGrid(3, 3, 5, 5);
 
-                if (!valueHasBeenSet)
-                {
-                    nbTry++;
-                }
-                else if (valueHasBeenSet && nbTry > 0)
-                {
-                    nbTry = 0;
-                }
-            } while (nbTry < 10);
-
-
-            nbTry = 0;
-            do
-            {
-                valueHasBeenSet = FillGrid(0, 0, 8, 8);
-
-                //if (!valueHasBeenSet)
-                //{
-                    nbTry++;
-                //}
-                //else if (valueHasBeenSet && nbTry > 0)
-                //{
-                //    nbTry = 0;
-                //}
-
-            } while (nbTry < 81);
+            //    if (!valueHasBeenSet)
+            //    {
+            //        nbTry++;
+            //    }
+            //    else if (valueHasBeenSet && nbTry > 0)
+            //    {
+            //        nbTry = 0;
+            //    }
+            //} while (nbTry < 10);
 
 
-            return nbTry;
+            //nbTry = 0;
+            //do
+            //{
+            //    valueHasBeenSet = FillGrid(0, 0, 8, 8);
+
+            //    //if (!valueHasBeenSet)
+            //    //{
+            //        nbTry++;
+            //    //}
+            //    //else if (valueHasBeenSet && nbTry > 0)
+            //    //{
+            //    //    nbTry = 0;
+            //    //}
+
+            //} while (nbTry < 81);
+
+            EstValide(0);
+            return numberOfCall;
+
         }
 
         private bool FillGrid(byte startX, byte startY, byte maxX, byte maxY)
         {
             bool valueHasBeenSet = false;
 
+
             for (byte line = startX; line <= maxX; line++)
             {
                 for (byte column = startY; column <= maxY; column++)
                 {
+
                     List<byte> numbersOnLine = GetNumbersOnLine(line);
                     List<byte> availableNumberOnLine = SudokuSubGrid.Digits.Except(numbersOnLine).ToList();
                     List<byte> numbersOnColumn = GetNumbersOnColumn(column);
@@ -353,22 +358,29 @@ namespace BestterSudoku.Models
                         }
                     }
 
-                    var availableNumbersOnGrid = SudokuSubGrid.Digits.Except(GetNumbersInGrid(line, column)).ToList();
-                    if (availableNumbersOnGrid.Count == 1)
+                    if (!valueHasBeenSet)
                     {
-                        var number = availableNumbersOnGrid[0];
-                        if (IsNumberAvailable(number, line, column))
+                        var availableNumbersOnGrid = SudokuSubGrid.Digits.Except(GetNumbersInGrid(line, column)).ToList();
+                        if (availableNumbersOnGrid.Count == 1)
                         {
-                            SetValue(line, column, number);
-                            valueHasBeenSet = true;
+                            var number = availableNumbersOnGrid[0];
+                            if (IsNumberAvailable(number, line, column))
+                            {
+                                SetValue(line, column, number);
+                                valueHasBeenSet = true;
+                            }
                         }
                     }
-                    foreach (var number in availableNumbersOnGrid)
+                    if (!valueHasBeenSet)
                     {
-                        if (IsNumberAvailable(number, line, column))
+                        var availableNumbersOnGrid = SudokuSubGrid.Digits.Except(GetNumbersInGrid(line, column)).ToList();
+                        foreach (var number in availableNumbersOnGrid)
                         {
-                            SetValue(line, column, number);
-                            valueHasBeenSet = true;
+                            if (IsNumberAvailable(number, line, column))
+                            {
+                                SetValue(line, column, number);
+                                valueHasBeenSet = true;
+                            }
                         }
                     }
 
@@ -499,13 +511,13 @@ namespace BestterSudoku.Models
 
         bool AbsentSurLigne(byte k, int line)
         {
-            int gridLine = line / 3;
+            int gridLine = line % 3;
             for (int grid = 0; grid < 3; grid++)
             {
                 var subGrid = subGrids[line / 3, grid];
                 for (int j = 0; j <= 2; j++)
                 {
-                    if (subGrid.GetValue(gridLine, j) == k)
+                    if (subGrid.GetValue(gridLine, j).Value == k)
                         return false;
                 }
             }
@@ -514,13 +526,13 @@ namespace BestterSudoku.Models
 
         bool AbsentSurColonne(byte k, int column)
         {
-            int gridColumn = column / 3;
-            for (int grid = 0; grid < 3; grid++)
+            int gridColumn = column % 3;
+            for (int grid = 0; grid <= 2; grid++)
             {
                 var subGrid = subGrids[grid, column / 3];
                 for (int i = 0; i <= 2; i++)
                 {
-                    if (subGrid.GetValue(i, gridColumn) == k)
+                    if (subGrid.GetValue(i, gridColumn).Value == k)
                         return false;
                 }
             }
@@ -535,11 +547,55 @@ namespace BestterSudoku.Models
             {
                 for (int j = 0; j < 2; j++)
                 {
-                    if (currentGrid.GetValue(i, j) == k)
+                    if (currentGrid.GetValue(i, j).Value == k)
                         return false;
                 }
             }
             return true;
         }
+
+        bool EstValide(int position)
+        {
+            Debug.WriteLine($" {nameof(position)}: {position} {nameof(numberOfCall)}: {numberOfCall} ");
+
+            if (numberOfCall > Math.Pow(81,9))
+            {
+                throw new NotSupportedException($"Too many call {numberOfCall} in {nameof(EstValide)}. Current position {position}");
+            }
+
+            numberOfCall++;
+            
+            if (position > 9 * 9)
+            {
+                return true;
+            }
+
+            int line = position / 9, column = position % 9;
+            int gridLine = line % 3, gridColumn = column % 3;
+
+            var currentGrid = subGrids[line / 3, column / 3];
+
+            var currentValue = currentGrid.GetValue(gridLine, gridColumn);
+            if (currentValue.Value != 0)
+            {
+                return EstValide(position + 1);
+            }
+
+            //backtracking
+            for (byte k = 1; k <= 9; k++)
+            {
+                if (AbsentSurLigne(k, line) && AbsentSurColonne(k, column) && AbsentSurBloc(k, line, column))
+                {
+                    currentGrid.SetValue(gridLine, gridColumn, k);
+                    if (EstValide(position + 1))
+                        return true;
+                }
+            }
+
+            currentGrid.SetValue(gridLine, gridColumn, 0);
+            return false;
+
+        }
+
     }
 }

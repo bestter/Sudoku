@@ -21,11 +21,11 @@ namespace BestterSudoku.Models
     public class ResolveValue
     {
         public SudokuGrid Grid { get; }
-        public int NbTry { get; }
+        public long NbTry { get; }
 
         public TimeSpan Elapsed { get; }
 
-        public ResolveValue(SudokuGrid grid, int nbTry, TimeSpan elapsed)
+        public ResolveValue(SudokuGrid grid, long nbTry, TimeSpan elapsed)
         {
             Grid = grid;
             NbTry = nbTry;

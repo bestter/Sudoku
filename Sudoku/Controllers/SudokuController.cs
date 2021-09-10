@@ -49,7 +49,7 @@ namespace BestterSudoku.Controllers
         public ActionResult Resolve()
         {
             SudokuGrid grid = new();
-
+            
             grid.SetValue(0, 0, 9, true);
             grid.SetValue(0, 3, 1, true);
             grid.SetValue(0, 8, 5, true);
@@ -82,6 +82,7 @@ namespace BestterSudoku.Controllers
             grid.SetValue(8, 5, 4, true);
             grid.SetValue(8, 6, 5, true);
             grid.SetValue(8, 7, 7, true);
+            
 
             /*
             grid.SetValue(0, 1, 4, true);
@@ -149,7 +150,7 @@ namespace BestterSudoku.Controllers
             grid.SetValue(3, 6, 4, true);
 
             grid.SetValue(4, 1, 4, true);
-            grid.SetValue(1, 5, 1, true);
+            grid.SetValue(5, 5, 1, true);
 
             grid.SetValue(5, 7, 8, true);
             grid.SetValue(5, 8, 1, true);

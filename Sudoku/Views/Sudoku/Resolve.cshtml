@@ -25,33 +25,28 @@
         @if (@Model != null && Model.Grid != null)
         {
             var grids = Model.Grid.GetValues();
-            @for (int i = 0; i <= 2; i++)
+            @for (int i = 0; i <= 8; i++)
             {
                 <tr>
-                    @for (int j = 0; j <= 2; j++)
+                    @for (int j = 0; j <= 8; j++)
                     {
-                        SudokuSubGrid grid = grids[i, j];
                         <td style="border: 2px double black; ">
                             <table>
+                                <tr>
+                                    @{
+                                        GridValue value = grids[i, j];
 
-                                @for (int ia = 0; ia <= 2; ia++)
-                                {
-                                    <tr>
-
-                                        @for (int ja = 0; ja <= 2; ja++)
+                                        @if (value.IsDefinition)
                                         {
-                                            SubGridValue value = grid.GetValue(ia, ja);
-                                            if (value.IsDefinition)
-                                            {
-                                                <td style="border: 2px solid black; width: 2em; height:2em;">@Html.Raw(value.Value.ToString())</td>
-                                            }
-                                            else
-                                            {
-                                                <td style="border: 3px dotted fuchsia; width: 2em; height:2em;">@Html.Raw(value.Value.ToString())</td>
-                                            }
+                                            <td style="border: 2px solid black; width: 2em; height:2em;">@Html.Raw(value.Value.ToString())</td>
                                         }
-                                    </tr>
-                                }
+                                        else
+                                        {
+                                            <td style="border: 3px dotted fuchsia; width: 2em; height:2em;">@Html.Raw(value.Value.ToString())</td>
+                                        }
+                                    }
+                                </tr>
+
                             </table>
                         </td>
                     }

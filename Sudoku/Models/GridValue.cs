@@ -14,75 +14,91 @@
     You should have received a copy of the GNU General Public License
     along with BestterSudoku.  If not, see <https://www.gnu.org/licenses/>
  */
-
 using System;
 
 namespace BestterSudoku.Models
 {
+    /// <summary>
+    /// Grid value
+    /// </summary>
     public class GridValue: IEquatable<GridValue>, IComparable, IComparable<GridValue>
     {
+        /// <summary>
+        /// Coordinater of this <see cref="GridValue"/>
+        /// </summary>
         public Coordinate Coordinate { get; }
-        public byte Value { get; }
 
-        public GridValue(byte x, byte y, byte value)
+        /// <summary>
+        /// Is a definition value
+        /// </summary>
+        public bool IsDefinition { get; private set; }
+
+        /// <summary>
+        /// The actual value
+        /// </summary>
+        public byte Value { get; private set; }
+
+        public static implicit operator byte(GridValue v) => v.Value;
+
+        /// <summary>
+        /// Create a <see cref="GridValue"/>
+        /// </summary>
+        /// <param name="line">X</param>
+        /// <param name="column">Y</param>
+        public GridValue(byte line, byte column)
         {
-            Coordinate = new Coordinate(x, y);
-            Value = value;
+            Coordinate = new Coordinate(line, column);
+            IsDefinition = false;
+            Value = 0;
         }
 
-        public GridValue(Coordinate coordinate, byte value)
+        public void SetValue(byte value, bool isDefinition = false)
         {
-            Coordinate = coordinate;
-            Value = value;
-        }
+            if (IsDefinition)
+            {
+                throw new NotSupportedException("Cannot change value of a definition field");
+            }
 
-        public override int GetHashCode()
-        {
-            return System.HashCode.Combine(Coordinate, Value);
+            Value = value;
+            IsDefinition = isDefinition;
         }
 
         public override string ToString()
         {
-            return $"{Coordinate} {Value}";
+            return $"{Coordinate} {IsDefinition} {Value}";
         }
 
-        public bool Equals(GridValue other)
+        public override int GetHashCode()
         {
-            if (other != null)
-            {
-                return Coordinate.Equals(other.Coordinate) && Value.Equals(other.Value);
-            }
-            return false;
+            return System.HashCode.Combine(Coordinate, IsDefinition, Value);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj is null)
-            {
-                return false;
-            }
-
-            var other = obj as GridValue;
-            if (other != null)
+            if (obj is GridValue other)
             {
                 return Equals(other);
             }
             return false;
         }
 
+        public bool Equals(GridValue other)
+        {
+            if (other != null)
+            {
+                return Coordinate.Equals(other.Coordinate) && IsDefinition.Equals(other.IsDefinition) && Value.Equals(other.Value);
+            }
+            return false;
+        }
+
         public int CompareTo(object obj)
         {
-            var other = obj as GridValue;
+            GridValue other = obj as GridValue;
             if (other != null)
             {
                 return CompareTo(other);
             }
-            return -1;
+            return 999;
         }
 
         public int CompareTo(GridValue other)
@@ -92,11 +108,12 @@ namespace BestterSudoku.Models
                 int compareValue = Coordinate.CompareTo(other.Coordinate);
                 if (compareValue == 0)
                 {
+                    //Should never occur
                     compareValue = Value.CompareTo(other.Value);
                 }
                 return compareValue;
             }
-            return -1;
+            return 999;
         }
 
         public static bool operator ==(GridValue left, GridValue right)

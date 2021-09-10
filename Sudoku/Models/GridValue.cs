@@ -15,9 +15,11 @@
     along with BestterSudoku.  If not, see <https://www.gnu.org/licenses/>
  */
 
+using System;
+
 namespace BestterSudoku.Models
 {
-    public class GridValue
+    public class GridValue: IEquatable<GridValue>, IComparable, IComparable<GridValue>
     {
         public Coordinate Coordinate { get; }
         public byte Value { get; }
@@ -32,6 +34,104 @@ namespace BestterSudoku.Models
         {
             Coordinate = coordinate;
             Value = value;
+        }
+
+        public override int GetHashCode()
+        {
+            return System.HashCode.Combine(Coordinate, Value);
+        }
+
+        public override string ToString()
+        {
+            return $"{Coordinate} {Value}";
+        }
+
+        public bool Equals(GridValue other)
+        {
+            if (other != null)
+            {
+                return Coordinate.Equals(other.Coordinate) && Value.Equals(other.Value);
+            }
+            return false;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj is null)
+            {
+                return false;
+            }
+
+            var other = obj as GridValue;
+            if (other != null)
+            {
+                return Equals(other);
+            }
+            return false;
+        }
+
+        public int CompareTo(object obj)
+        {
+            var other = obj as GridValue;
+            if (other != null)
+            {
+                return CompareTo(other);
+            }
+            return -1;
+        }
+
+        public int CompareTo(GridValue other)
+        {
+            if (other != null)
+            {
+                int compareValue = Coordinate.CompareTo(other.Coordinate);
+                if (compareValue == 0)
+                {
+                    compareValue = Value.CompareTo(other.Value);
+                }
+                return compareValue;
+            }
+            return -1;
+        }
+
+        public static bool operator ==(GridValue left, GridValue right)
+        {
+            if (left is null)
+            {
+                return right is null;
+            }
+
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(GridValue left, GridValue right)
+        {
+            return !(left == right);
+        }
+
+        public static bool operator <(GridValue left, GridValue right)
+        {
+            return left is null ? right is not null : left.CompareTo(right) < 0;
+        }
+
+        public static bool operator <=(GridValue left, GridValue right)
+        {
+            return left is null || left.CompareTo(right) <= 0;
+        }
+
+        public static bool operator >(GridValue left, GridValue right)
+        {
+            return left is not null && left.CompareTo(right) > 0;
+        }
+
+        public static bool operator >=(GridValue left, GridValue right)
+        {
+            return left is null ? right is null : left.CompareTo(right) >= 0;
         }
     }
 }

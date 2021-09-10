@@ -33,6 +33,8 @@ namespace BestterSudoku.Models
 
         readonly SudokuSubGrid[,] subGrids;
 
+        private long numberOfCall;
+
         public SudokuGrid()
         {
             subGrids = new SudokuSubGrid[3, 3];
@@ -188,7 +190,7 @@ namespace BestterSudoku.Models
         private bool IsNumberAvailable(byte number, int currentLine, int currentColumn)
         {
             IEnumerable<byte> numbersOnLine = GetNumbersOnLine(currentLine);
-            System.Diagnostics.Debug.WriteLine(nameof(numbersOnLine) + " " + EnumerateArray(numbersOnLine));
+            Debug.WriteLine(nameof(numbersOnLine) + " " + EnumerateArray(numbersOnLine));
 
             var isNumberInLine = numbersOnLine.Any(n => n == number);
             if (isNumberInLine)
@@ -197,7 +199,7 @@ namespace BestterSudoku.Models
             }
 
             IEnumerable<byte> numbersOnColumn = GetNumbersOnColumn(currentColumn);
-            System.Diagnostics.Debug.WriteLine(nameof(numbersOnColumn) + " " + EnumerateArray(numbersOnColumn));
+            Debug.WriteLine(nameof(numbersOnColumn) + " " + EnumerateArray(numbersOnColumn));
 
             var isNumberInColumn = numbersOnColumn.Any(n => n == number);
             if (isNumberInColumn)
@@ -206,7 +208,7 @@ namespace BestterSudoku.Models
             }
 
             var numbersInGrid = GetNumbersInGrid(currentLine, currentColumn);
-            System.Diagnostics.Debug.WriteLine(nameof(numbersInGrid) + " " + " " + EnumerateArray(numbersInGrid));
+            Debug.WriteLine(nameof(numbersInGrid) + " " + " " + EnumerateArray(numbersInGrid));
 
             var isNumberInGrid = numbersInGrid.Any(n => n == number);
             if (isNumberInGrid)
@@ -214,119 +216,264 @@ namespace BestterSudoku.Models
                 return false;
             }
 
-            System.Diagnostics.Debug.WriteLine(number.ToString() + Environment.NewLine);
+            Debug.WriteLine(number.ToString() + Environment.NewLine);
             return true;
         }
 
-        public int Resolve()
+        public long Resolve()
         {
-            int nbTry = 0;
-            while (HasEmptyValue && nbTry < 10)
+            //int nbTry = 0;
+            //bool valueHasBeenSet;
+
+            ////first thing first
+            //do
+            //{
+            //    valueHasBeenSet = FillGrid(3, 3, 5, 5);
+
+            //    if (!valueHasBeenSet)
+            //    {
+            //        nbTry++;
+            //    }
+            //    else if (valueHasBeenSet && nbTry > 0)
+            //    {
+            //        nbTry = 0;
+            //    }
+            //} while (nbTry < 10);
+
+
+            //nbTry = 0;
+            //do
+            //{
+            //    valueHasBeenSet = FillGrid(0, 0, 8, 8);
+
+            //    //if (!valueHasBeenSet)
+            //    //{
+            //        nbTry++;
+            //    //}
+            //    //else if (valueHasBeenSet && nbTry > 0)
+            //    //{
+            //    //    nbTry = 0;
+            //    //}
+
+            //} while (nbTry < 81);
+
+            EstValide(0);
+            return numberOfCall;
+
+        }
+
+        private bool FillGrid(byte startX, byte startY, byte maxX, byte maxY)
+        {
+            bool valueHasBeenSet = false;
+
+
+            for (byte line = startX; line <= maxX; line++)
             {
-                for (int line = 0; line <= 8; line++)
+                for (byte column = startY; column <= maxY; column++)
                 {
-                    for (int column = 0; column <= 8; column++)
+
+                    List<byte> numbersOnLine = GetNumbersOnLine(line);
+                    List<byte> availableNumberOnLine = SudokuSubGrid.Digits.Except(numbersOnLine).ToList();
+                    List<byte> numbersOnColumn = GetNumbersOnColumn(column);
+                    List<byte> availableNumberOnColumn = availableNumberOnLine.Except(numbersOnColumn).ToList();
+
+                    List<byte> numbersOnGrid = GetNumbersInGrid(line, column);
+
+                    var availableNumbers = availableNumberOnColumn.Except(numbersOnGrid).OrderBy(x => x).ToList();
+
+                    if (availableNumbers.Count == 1)
                     {
-                        List<byte> numbersOnLine = GetNumbersOnLine(line);
-                        List<byte> availableNumberOnLine = SudokuSubGrid.Digits.Except(numbersOnLine).ToList();
-                        List<byte> numbersOnColumn = GetNumbersOnColumn(column);
-                        List<byte> availableNumberOnColumn = availableNumberOnLine.Except(numbersOnColumn).ToList();
-
-                        List<byte> numbersOnGrid = GetNumbersInGrid(line, column);
-
-                        var availableNumbers = availableNumberOnColumn.Except(numbersOnGrid).OrderBy(x => x).ToList();
-
-                        if (availableNumbers.Count == 1)
+                        var number = availableNumbers[0];
+                        //Safety
+                        if (IsNumberAvailable(number, line, column))
                         {
-                            var number = availableNumbers[0];
-                            //Safety
-                            if (IsNumberAvailable(number, line, column))
+                            SetValue(line, column, number);
+                            valueHasBeenSet = true;
+                            break;
+                        }
+                    }
+                    else if (availableNumbers.Count > 1)
+                    {
+                        foreach (var number in availableNumbers)
+                        {
+                            bool okToAdd = false;
+                            List<byte> numbersOnPreviousLine = new();
+                            List<byte> numbersOnNextLine = new();
+                            List<byte> numbersOnPreviousColumn = new();
+                            List<byte> numbersOnNextColumn = new();
+
+                            if (line == 8)
+                            {
+                                numbersOnPreviousLine.AddRange(SudokuSubGrid.Digits);
+                            }
+                            if (line > startX)
+                            {
+                                numbersOnPreviousLine.AddRange(GetNumbersOnLine(line - 1));
+                            }
+
+                            if (line < maxX)
+                            {
+                                numbersOnNextLine.AddRange(GetNumbersOnLine(line + 1));
+                            }
+                            if (line == 8)
+                            {
+                                numbersOnNextLine.AddRange(SudokuSubGrid.Digits);
+                            }
+
+                            if (column == 8)
+                            {
+                                numbersOnPreviousColumn.AddRange(SudokuSubGrid.Digits);
+                            }
+                            if (column > startY)
+                            {
+                                numbersOnPreviousColumn.AddRange(GetNumbersOnColumn(column - 1));
+                            }
+
+                            if (column < maxY)
+                            {
+                                numbersOnNextColumn.AddRange(GetNumbersOnColumn(column + 1));
+                            }
+
+                            if (column == 8)
+                            {
+                                numbersOnNextColumn.AddRange(SudokuSubGrid.Digits);
+                            }
+
+                            if (numbersOnPreviousLine.Any(n => n == number) &&
+                                numbersOnNextLine.Any(n => n == number) &&
+                                numbersOnPreviousColumn.Any(n => n == number) &&
+                                numbersOnNextColumn.Any(n => n == number)
+                                )
+                            {
+                                okToAdd = true;
+                            }
+
+
+                            if (okToAdd && IsNumberAvailable(number, line, column))
                             {
                                 SetValue(line, column, number);
+                                valueHasBeenSet = true;
                                 break;
                             }
                         }
-                        else if (availableNumbers.Count > 1)
+                    }
+
+                    if (!valueHasBeenSet)
+                    {
+                        var availableNumbersOnGrid = SudokuSubGrid.Digits.Except(GetNumbersInGrid(line, column)).ToList();
+                        if (availableNumbersOnGrid.Count == 1)
                         {
-                            foreach (var number in availableNumbers)
+                            var number = availableNumbersOnGrid[0];
+                            if (IsNumberAvailable(number, line, column))
                             {
-                                bool okToAdd = false;
-                                List<byte> numbersOnPreviousLine = new();
-                                List<byte> numbersOnNextLine = new();
-                                List<byte> numbersOnPreviousColumn = new();
-                                List<byte> numbersOnNextColumn = new();
-
-                                if (line == 0)
-                                {
-                                    numbersOnPreviousLine.AddRange(SudokuSubGrid.Digits);
-                                }
-                                if (line > 0)
-                                {
-                                    numbersOnPreviousLine.AddRange(GetNumbersOnLine(line - 1));
-                                }
-
-
-                                if (line < 8)
-                                {
-                                    numbersOnNextLine.AddRange(GetNumbersOnLine(line + 1));
-                                }
-                                if (line == 8)
-                                {
-                                    numbersOnNextLine.AddRange(SudokuSubGrid.Digits);
-                                }
-
-                                if (column == 0)
-                                {
-                                    numbersOnPreviousColumn.AddRange(SudokuSubGrid.Digits);
-                                }
-                                if (column > 0)
-                                {
-                                    numbersOnPreviousColumn.AddRange(GetNumbersOnColumn(column - 1));
-                                }
-
-                                if (column < 8)
-                                {
-                                    numbersOnNextColumn.AddRange(GetNumbersOnColumn(column + 1));
-                                }
-
-                                if (column == 8)
-                                {
-                                    numbersOnNextColumn.AddRange(SudokuSubGrid.Digits);
-                                }
-
-                                if (numbersOnPreviousLine.Any(n => n == number) &&
-                                    numbersOnNextLine.Any(n => n == number) &&
-                                    numbersOnPreviousColumn.Any(n => n == number) &&
-                                    numbersOnNextColumn.Any(n => n == number)
-                                    )
-                                {
-                                    okToAdd = true;
-                                }
-
-                                //if (!okToAdd)
-                                //{
-
-                                //}
-
-
-                                if (okToAdd)
-                                {
-                                    if (IsNumberAvailable(number, line, column))
-                                    {
-                                        SetValue(line, column, number);
-                                        break;
-                                    }
-                                }
-
+                                SetValue(line, column, number);
+                                valueHasBeenSet = true;
                             }
                         }
                     }
+                    if (!valueHasBeenSet)
+                    {
+                        var availableNumbersOnGrid = SudokuSubGrid.Digits.Except(GetNumbersInGrid(line, column)).ToList();
+                        foreach (var number in availableNumbersOnGrid)
+                        {
+                            if (IsNumberAvailable(number, line, column))
+                            {
+                                SetValue(line, column, number);
+                                valueHasBeenSet = true;
+                            }
+                        }
+                    }
+
                 }
-                nbTry++;
             }
 
+            List<GridValue> possibleValues = new();
 
-            return nbTry;
+            foreach (var digit in SudokuSubGrid.Digits)
+            {
+                for (byte i = startX; i < maxX; i++)
+                {
+                    for (byte j = startY; j < maxY; j++)
+                    {
+                        if (AbsentSurLigne(digit, i) && AbsentSurColonne(digit, j) && AbsentSurBloc(digit, i, j) && IsNumberAvailable(digit, i, j))
+                        {
+                            possibleValues.Add(new GridValue(i, j, digit));
+                        }
+                    }
+                }
+            }
+
+            var quantityPerValues = from possibleValue in possibleValues
+                                    group possibleValue by possibleValue.Value into valuesGroup
+                                    select new
+                                    {
+                                        Value = valuesGroup.Key,
+                                        Count = valuesGroup.Count(),
+                                    };
+            var minimalValue = quantityPerValues.OrderBy(qpv => qpv.Count).Select(qpv => qpv.Count).FirstOrDefault();
+            if (minimalValue > 0)
+            {
+                foreach (var valuesGroup in quantityPerValues.Where(qpv => qpv.Count == minimalValue).OrderBy(qpv => qpv.Value))
+                {
+                    foreach (var possibleValue in possibleValues.Where(pv => pv.Value == valuesGroup.Value))
+                    {
+                        var line = possibleValue.Coordinate.X;
+                        var column = possibleValue.Coordinate.Y;
+                        List<byte> numbersOnPreviousLine = new();
+                        List<byte> numbersOnNextLine = new();
+                        List<byte> numbersOnPreviousColumn = new();
+                        List<byte> numbersOnNextColumn = new();
+
+                        if (line == 0)
+                        {
+                            numbersOnPreviousLine.AddRange(SudokuSubGrid.Digits);
+                        }
+                        if (line > 0)
+                        {
+                            numbersOnPreviousLine.AddRange(GetNumbersOnLine(line - 1));
+                        }
+
+                        if (line < 8)
+                        {
+                            numbersOnNextLine.AddRange(GetNumbersOnLine(line + 1));
+                        }
+                        if (line == 8)
+                        {
+                            numbersOnNextLine.AddRange(SudokuSubGrid.Digits);
+                        }
+
+                        if (column == 0)
+                        {
+                            numbersOnPreviousColumn.AddRange(SudokuSubGrid.Digits);
+                        }
+                        if (column > 0)
+                        {
+                            numbersOnPreviousColumn.AddRange(GetNumbersOnColumn(column - 1));
+                        }
+
+                        if (column < 8)
+                        {
+                            numbersOnNextColumn.AddRange(GetNumbersOnColumn(column + 1));
+                        }
+
+                        if (column == 8)
+                        {
+                            numbersOnNextColumn.AddRange(SudokuSubGrid.Digits);
+                        }
+                        if (numbersOnPreviousLine.Any(n => n == possibleValue.Value) &&
+                                    numbersOnNextLine.Any(n => n == possibleValue.Value) &&
+                                    numbersOnPreviousColumn.Any(n => n == possibleValue.Value) &&
+                                    numbersOnNextColumn.Any(n => n == possibleValue.Value)
+                                     && IsNumberAvailable(possibleValue.Value, line, column))
+                        {
+                            SetValue(possibleValue.Coordinate.X, possibleValue.Coordinate.Y, possibleValue.Value);
+                            valueHasBeenSet = true;
+                        }
+                    }
+                }
+            }
+
+            return valueHasBeenSet;
         }
 
         /// <summary>
@@ -361,5 +508,94 @@ namespace BestterSudoku.Models
                 return hasEmptyValue;
             }
         }
+
+        bool AbsentSurLigne(byte k, int line)
+        {
+            int gridLine = line % 3;
+            for (int grid = 0; grid < 3; grid++)
+            {
+                var subGrid = subGrids[line / 3, grid];
+                for (int j = 0; j <= 2; j++)
+                {
+                    if (subGrid.GetValue(gridLine, j).Value == k)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        bool AbsentSurColonne(byte k, int column)
+        {
+            int gridColumn = column % 3;
+            for (int grid = 0; grid <= 2; grid++)
+            {
+                var subGrid = subGrids[grid, column / 3];
+                for (int i = 0; i <= 2; i++)
+                {
+                    if (subGrid.GetValue(i, gridColumn).Value == k)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        bool AbsentSurBloc(byte k, int line, int column)
+        {
+            var currentGrid = subGrids[line / 3, column / 3];
+
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (currentGrid.GetValue(i, j).Value == k)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        bool EstValide(int position)
+        {
+            Debug.WriteLine($" {nameof(position)}: {position} {nameof(numberOfCall)}: {numberOfCall} ");
+
+            if (numberOfCall > Math.Pow(81,9))
+            {
+                throw new NotSupportedException($"Too many call {numberOfCall} in {nameof(EstValide)}. Current position {position}");
+            }
+
+            numberOfCall++;
+            
+            if (position > 9 * 9)
+            {
+                return true;
+            }
+
+            int line = position / 9, column = position % 9;
+            int gridLine = line % 3, gridColumn = column % 3;
+
+            var currentGrid = subGrids[line / 3, column / 3];
+
+            var currentValue = currentGrid.GetValue(gridLine, gridColumn);
+            if (currentValue.Value != 0)
+            {
+                return EstValide(position + 1);
+            }
+
+            //backtracking
+            for (byte k = 1; k <= 9; k++)
+            {
+                if (AbsentSurLigne(k, line) && AbsentSurColonne(k, column) && AbsentSurBloc(k, line, column))
+                {
+                    currentGrid.SetValue(gridLine, gridColumn, k);
+                    if (EstValide(position + 1))
+                        return true;
+                }
+            }
+
+            currentGrid.SetValue(gridLine, gridColumn, 0);
+            return false;
+
+        }
+
     }
 }

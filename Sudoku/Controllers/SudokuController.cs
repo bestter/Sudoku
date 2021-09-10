@@ -17,6 +17,7 @@
 using BestterSudoku.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Diagnostics;
 
 namespace BestterSudoku.Controllers
@@ -49,6 +50,40 @@ namespace BestterSudoku.Controllers
         {
             SudokuGrid grid = new();
 
+            grid.SetValue(0, 0, 9, true);
+            grid.SetValue(0, 3, 1, true);
+            grid.SetValue(0, 8, 5, true);
+
+            grid.SetValue(1, 2, 5, true);
+            grid.SetValue(1, 4, 9, true);
+            grid.SetValue(1, 6, 2, true);
+            grid.SetValue(1, 8, 1, true);
+
+            grid.SetValue(2, 0, 8, true);
+            grid.SetValue(2, 4, 4, true);
+
+            grid.SetValue(3, 4, 8, true);
+
+            grid.SetValue(4, 3, 7, true);
+
+            grid.SetValue(5, 4, 2, true);
+            grid.SetValue(5, 5, 6, true);
+            grid.SetValue(5, 8, 9, true);
+
+            grid.SetValue(6, 0, 2, true);
+            grid.SetValue(6, 3, 3, true);
+            grid.SetValue(6, 8, 6, true);
+            
+            grid.SetValue(7, 3, 2, true);
+            grid.SetValue(7, 6, 9, true);
+
+            grid.SetValue(8, 2, 1, true);
+            grid.SetValue(8, 3, 9, true);
+            grid.SetValue(8, 5, 4, true);
+            grid.SetValue(8, 6, 5, true);
+            grid.SetValue(8, 7, 7, true);
+
+            /*
             grid.SetValue(0, 1, 4, true);
             grid.SetValue(0, 5, 8, true);
             grid.SetValue(0, 6, 7, true);
@@ -96,7 +131,7 @@ namespace BestterSudoku.Controllers
             grid.SetValue(8, 0, 4, true);
             grid.SetValue(8, 1, 1, true);
             grid.SetValue(8, 5, 2, true);
-
+            */
 
             /*
             grid.SetValue(0, 0, 4, true);
@@ -129,11 +164,17 @@ namespace BestterSudoku.Controllers
             grid.SetValue(8, 8, 9, true);
             */
 
+
             Stopwatch stopwatch = Stopwatch.StartNew();
-            int nbTry = 0;
+            long nbTry = 0;
             try
             {
+                //nbTry = grid.Resolve();
                 nbTry = grid.Resolve();
+            }
+            catch (NotSupportedException e)
+            {
+                Debug.WriteLine(e);
             }
             finally
             {

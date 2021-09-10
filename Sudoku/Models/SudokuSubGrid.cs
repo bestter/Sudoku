@@ -7,7 +7,14 @@ namespace BestterSudoku.Models
 {
     public class SubGridValue
     {
+        /// <summary>
+        /// Is a definition value
+        /// </summary>
         public bool IsDefinition { get; }
+
+        /// <summary>
+        /// The actual value
+        /// </summary>
         public byte Value { get; }
 
         public static implicit operator byte(SubGridValue v) => v.Value;
@@ -40,9 +47,9 @@ namespace BestterSudoku.Models
         public SudokuSubGrid(byte x, byte y)
         {
             subGrid = new SubGridValue[3, 3];
-            for (int i = 0;  i<=2; i++)
+            for (int i = 0; i <= 2; i++)
             {
-                for (int j=0; j<=2; j++)
+                for (int j = 0; j <= 2; j++)
                 {
                     subGrid[i, j] = new SubGridValue();
                 }
@@ -116,19 +123,35 @@ namespace BestterSudoku.Models
             {
                 throw new ArgumentOutOfRangeException(nameof(y), y, $"{nameof(y)} must be between 0 and 2");
             }
-            if (value < 1 || value > 9)
+            if (isDefinition && (value < 1 || value > 9))
             {
                 throw new ArgumentOutOfRangeException(nameof(value), value, $"{nameof(value)} must be between 1 and 9");
+            }
+
+            var sgvalue = subGrid[x, y];
+            if (sgvalue != null && sgvalue.IsDefinition)
+            {
+                throw new NotSupportedException($"Cannot change value of {x},{y} of grid {subGrid} because it's a definition!");
             }
 
             subGrid[x, y] = new SubGridValue(value, isDefinition);
         }
 
+        /// <summary>
+        /// Get value at <paramref name="x"/> and <paramref name="y"/>
+        /// </summary>
+        /// <param name="x">the line</param>
+        /// <param name="y">the column</param>
+        /// <returns></returns>
         public SubGridValue GetValue(int x, int y)
         {
             return subGrid[x, y];
         }
 
+        /// <summary>
+        /// fill the <see cref="SudokuSubGrid"/> with <paramref name="values"/>
+        /// </summary>
+        /// <param name="values">values to put in this grid</param>
         public void Fill(IEnumerable<byte> values)
         {
             byte[] data = values.ToArray();

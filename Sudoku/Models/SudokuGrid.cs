@@ -17,6 +17,7 @@
 using BestterSudoku.Utility;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
@@ -26,26 +27,28 @@ namespace BestterSudoku.Models
 {
     public class SudokuGrid
     {
+        internal static ReadOnlyCollection<byte> Digits = new(new List<byte> { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+
         /// <summary>
         /// Creation time
         /// </summary>
         public DateTimeOffset CreationTime { get; set; }
 
-        readonly SudokuSubGrid[,] subGrids;
 
         private long numberOfCall;
 
+        private readonly GridValue[,] grids;
+
         public SudokuGrid()
         {
-            subGrids = new SudokuSubGrid[3, 3];
-            for (byte i = 0; i <= 2; i++)
+            grids = new GridValue[9, 9];
+            for (byte i = 0; i <= 8; i++)
             {
-                for (byte j = 0; j <= 2; j++)
+                for (byte j = 0; j <= 8; j++)
                 {
-                    subGrids[i, j] = new SudokuSubGrid(i, j);
+                    grids[i, j] = new GridValue(i, j);
                 }
             }
-
         }
 
         public void SetValue(int line, int column, byte value, bool isDefinition = false)
@@ -63,26 +66,28 @@ namespace BestterSudoku.Models
                 throw new ArgumentOutOfRangeException(nameof(value), value, $"{nameof(value)} must be between 1 and 9");
             }
 
-            int gridLine = line / 3;
-            int gridColumn = column / 3;
-            var subGrid = subGrids[gridLine, gridColumn];
-
-            var lineOffSet = line - (3 * gridLine);
-            var columnOffSet = column - (3 * gridColumn);
-            subGrid.SetValue(lineOffSet, columnOffSet, value, isDefinition);
+            GridValue sgvalue = grids[line, column];
+            sgvalue.SetValue(value, isDefinition);
         }
 
-        public SudokuSubGrid[,] GetValues()
+        public GridValue[,] GetValues()
         {
-            return subGrids;
+            return grids;
         }
 
         public void Generate()
         {
             RNGCryptoServiceProvider random = new();
 
-            byte[] items = SudokuSubGrid.Digits.OrderBy(x => random.GetNextInt32()).ToArray();
-            subGrids[1, 1].Fill(items);
+            byte[] items = Digits.OrderBy(x => random.GetNextInt32()).ToArray();
+
+            //Middle
+            for (int i = 0; i < items.Length; i++)
+            {
+                int line = i / 3, column = i % 3;
+                grids[line + 3, column + 3].SetValue(items[i]);
+            }
+
 
             //Now do the main algorithm
             for (int line = 0; line <= 8; line++)
@@ -90,7 +95,7 @@ namespace BestterSudoku.Models
                 for (int column = 0; column <= 8; column++)
                 {
                     IEnumerable<byte> numbersOnLine = GetNumbersOnLine(line);
-                    List<byte> availableNumberOnLine = SudokuSubGrid.Digits.Except(numbersOnLine).ToList();
+                    List<byte> availableNumberOnLine = Digits.Except(numbersOnLine).ToList();
                     List<byte> numbersOnColumn = GetNumbersOnColumn(column);
                     List<byte> availableNumberOnColumn = availableNumberOnLine.Except(numbersOnColumn).ToList();
 
@@ -110,7 +115,7 @@ namespace BestterSudoku.Models
                     }
                     if (!isFound)
                     {
-                        var numbers = SudokuSubGrid.Digits.OrderBy(x => x).ToArray();
+                        var numbers = Digits.OrderBy(x => x).ToArray();
                         foreach (byte number in numbers)
                         {
                             if (IsNumberAvailable(number, line, column))
@@ -130,19 +135,13 @@ namespace BestterSudoku.Models
         private List<byte> GetNumbersOnLine(int line)
         {
             List<byte> numbersOnLine = new();
-            int gridLine = line / 3;
 
-            for (int grid = 0; grid <= 2; grid++)
+            for (int j = 0; j <= 8; j++)
             {
-                var subGrid = subGrids[gridLine, grid];
-                for (int j = 0; j <= 2; j++)
+                byte value = grids[line, j];
+                if (value != 0)
                 {
-                    var offSet = line - (3 * gridLine);
-                    byte value = subGrid.GetValue(offSet, j);
-                    if (value != 0)
-                    {
-                        numbersOnLine.Add(value);
-                    }
+                    numbersOnLine.Add(value);
                 }
             }
             return numbersOnLine;
@@ -151,19 +150,13 @@ namespace BestterSudoku.Models
         private List<byte> GetNumbersOnColumn(int column)
         {
             List<byte> numbersOnColumn = new();
-            int gridColumn = column / 3;
 
-            for (int grid = 0; grid <= 2; grid++)
+            for (int i = 0; i <= 8; i++)
             {
-                var subGrid = subGrids[grid, gridColumn];
-                for (int j = 0; j <= 2; j++)
+                byte value = grids[i, column];
+                if (value != 0)
                 {
-                    var offSet = column - (3 * gridColumn);
-                    byte value = subGrid.GetValue(j, offSet);
-                    if (value != 0)
-                    {
-                        numbersOnColumn.Add(value);
-                    }
+                    numbersOnColumn.Add(value);
                 }
             }
             return numbersOnColumn;
@@ -172,12 +165,12 @@ namespace BestterSudoku.Models
         private List<byte> GetNumbersInGrid(int line, int column)
         {
             List<byte> numberInGrid = new();
-            var currentGrid = subGrids[line / 3, column / 3];
-            for (int i = 0; i <= 2; i++)
+
+            for (int i = line; i <= 2 + line; i++)
             {
-                for (int j = 0; j <= 2; j++)
+                for (int j = column; j <= 2 + column; j++)
                 {
-                    byte value = currentGrid.GetValue(i, j);
+                    byte value = grids[i, j];
                     if (value != 0)
                     {
                         numberInGrid.Add(value);
@@ -190,7 +183,6 @@ namespace BestterSudoku.Models
         private bool IsNumberAvailable(byte number, int currentLine, int currentColumn)
         {
             IEnumerable<byte> numbersOnLine = GetNumbersOnLine(currentLine);
-            Debug.WriteLine(nameof(numbersOnLine) + " " + EnumerateArray(numbersOnLine));
 
             var isNumberInLine = numbersOnLine.Any(n => n == number);
             if (isNumberInLine)
@@ -199,7 +191,6 @@ namespace BestterSudoku.Models
             }
 
             IEnumerable<byte> numbersOnColumn = GetNumbersOnColumn(currentColumn);
-            Debug.WriteLine(nameof(numbersOnColumn) + " " + EnumerateArray(numbersOnColumn));
 
             var isNumberInColumn = numbersOnColumn.Any(n => n == number);
             if (isNumberInColumn)
@@ -208,273 +199,23 @@ namespace BestterSudoku.Models
             }
 
             var numbersInGrid = GetNumbersInGrid(currentLine, currentColumn);
-            Debug.WriteLine(nameof(numbersInGrid) + " " + " " + EnumerateArray(numbersInGrid));
-
             var isNumberInGrid = numbersInGrid.Any(n => n == number);
             if (isNumberInGrid)
             {
                 return false;
             }
 
-            Debug.WriteLine(number.ToString() + Environment.NewLine);
             return true;
         }
 
+
         public long Resolve()
         {
-            //int nbTry = 0;
-            //bool valueHasBeenSet;
-
-            ////first thing first
-            //do
-            //{
-            //    valueHasBeenSet = FillGrid(3, 3, 5, 5);
-
-            //    if (!valueHasBeenSet)
-            //    {
-            //        nbTry++;
-            //    }
-            //    else if (valueHasBeenSet && nbTry > 0)
-            //    {
-            //        nbTry = 0;
-            //    }
-            //} while (nbTry < 10);
-
-
-            //nbTry = 0;
-            //do
-            //{
-            //    valueHasBeenSet = FillGrid(0, 0, 8, 8);
-
-            //    //if (!valueHasBeenSet)
-            //    //{
-            //        nbTry++;
-            //    //}
-            //    //else if (valueHasBeenSet && nbTry > 0)
-            //    //{
-            //    //    nbTry = 0;
-            //    //}
-
-            //} while (nbTry < 81);
-
             EstValide(0);
             return numberOfCall;
-
         }
 
-        private bool FillGrid(byte startX, byte startY, byte maxX, byte maxY)
-        {
-            bool valueHasBeenSet = false;
 
-
-            for (byte line = startX; line <= maxX; line++)
-            {
-                for (byte column = startY; column <= maxY; column++)
-                {
-
-                    List<byte> numbersOnLine = GetNumbersOnLine(line);
-                    List<byte> availableNumberOnLine = SudokuSubGrid.Digits.Except(numbersOnLine).ToList();
-                    List<byte> numbersOnColumn = GetNumbersOnColumn(column);
-                    List<byte> availableNumberOnColumn = availableNumberOnLine.Except(numbersOnColumn).ToList();
-
-                    List<byte> numbersOnGrid = GetNumbersInGrid(line, column);
-
-                    var availableNumbers = availableNumberOnColumn.Except(numbersOnGrid).OrderBy(x => x).ToList();
-
-                    if (availableNumbers.Count == 1)
-                    {
-                        var number = availableNumbers[0];
-                        //Safety
-                        if (IsNumberAvailable(number, line, column))
-                        {
-                            SetValue(line, column, number);
-                            valueHasBeenSet = true;
-                            break;
-                        }
-                    }
-                    else if (availableNumbers.Count > 1)
-                    {
-                        foreach (var number in availableNumbers)
-                        {
-                            bool okToAdd = false;
-                            List<byte> numbersOnPreviousLine = new();
-                            List<byte> numbersOnNextLine = new();
-                            List<byte> numbersOnPreviousColumn = new();
-                            List<byte> numbersOnNextColumn = new();
-
-                            if (line == 8)
-                            {
-                                numbersOnPreviousLine.AddRange(SudokuSubGrid.Digits);
-                            }
-                            if (line > startX)
-                            {
-                                numbersOnPreviousLine.AddRange(GetNumbersOnLine(line - 1));
-                            }
-
-                            if (line < maxX)
-                            {
-                                numbersOnNextLine.AddRange(GetNumbersOnLine(line + 1));
-                            }
-                            if (line == 8)
-                            {
-                                numbersOnNextLine.AddRange(SudokuSubGrid.Digits);
-                            }
-
-                            if (column == 8)
-                            {
-                                numbersOnPreviousColumn.AddRange(SudokuSubGrid.Digits);
-                            }
-                            if (column > startY)
-                            {
-                                numbersOnPreviousColumn.AddRange(GetNumbersOnColumn(column - 1));
-                            }
-
-                            if (column < maxY)
-                            {
-                                numbersOnNextColumn.AddRange(GetNumbersOnColumn(column + 1));
-                            }
-
-                            if (column == 8)
-                            {
-                                numbersOnNextColumn.AddRange(SudokuSubGrid.Digits);
-                            }
-
-                            if (numbersOnPreviousLine.Any(n => n == number) &&
-                                numbersOnNextLine.Any(n => n == number) &&
-                                numbersOnPreviousColumn.Any(n => n == number) &&
-                                numbersOnNextColumn.Any(n => n == number)
-                                )
-                            {
-                                okToAdd = true;
-                            }
-
-
-                            if (okToAdd && IsNumberAvailable(number, line, column))
-                            {
-                                SetValue(line, column, number);
-                                valueHasBeenSet = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!valueHasBeenSet)
-                    {
-                        var availableNumbersOnGrid = SudokuSubGrid.Digits.Except(GetNumbersInGrid(line, column)).ToList();
-                        if (availableNumbersOnGrid.Count == 1)
-                        {
-                            var number = availableNumbersOnGrid[0];
-                            if (IsNumberAvailable(number, line, column))
-                            {
-                                SetValue(line, column, number);
-                                valueHasBeenSet = true;
-                            }
-                        }
-                    }
-                    if (!valueHasBeenSet)
-                    {
-                        var availableNumbersOnGrid = SudokuSubGrid.Digits.Except(GetNumbersInGrid(line, column)).ToList();
-                        foreach (var number in availableNumbersOnGrid)
-                        {
-                            if (IsNumberAvailable(number, line, column))
-                            {
-                                SetValue(line, column, number);
-                                valueHasBeenSet = true;
-                            }
-                        }
-                    }
-
-                }
-            }
-
-            List<GridValue> possibleValues = new();
-
-            foreach (var digit in SudokuSubGrid.Digits)
-            {
-                for (byte i = startX; i < maxX; i++)
-                {
-                    for (byte j = startY; j < maxY; j++)
-                    {
-                        if (AbsentSurLigne(digit, i) && AbsentSurColonne(digit, j) && AbsentSurBloc(digit, i, j) && IsNumberAvailable(digit, i, j))
-                        {
-                            possibleValues.Add(new GridValue(i, j, digit));
-                        }
-                    }
-                }
-            }
-
-            var quantityPerValues = from possibleValue in possibleValues
-                                    group possibleValue by possibleValue.Value into valuesGroup
-                                    select new
-                                    {
-                                        Value = valuesGroup.Key,
-                                        Count = valuesGroup.Count(),
-                                    };
-            var minimalValue = quantityPerValues.OrderBy(qpv => qpv.Count).Select(qpv => qpv.Count).FirstOrDefault();
-            if (minimalValue > 0)
-            {
-                foreach (var valuesGroup in quantityPerValues.Where(qpv => qpv.Count == minimalValue).OrderBy(qpv => qpv.Value))
-                {
-                    foreach (var possibleValue in possibleValues.Where(pv => pv.Value == valuesGroup.Value))
-                    {
-                        var line = possibleValue.Coordinate.X;
-                        var column = possibleValue.Coordinate.Y;
-                        List<byte> numbersOnPreviousLine = new();
-                        List<byte> numbersOnNextLine = new();
-                        List<byte> numbersOnPreviousColumn = new();
-                        List<byte> numbersOnNextColumn = new();
-
-                        if (line == 0)
-                        {
-                            numbersOnPreviousLine.AddRange(SudokuSubGrid.Digits);
-                        }
-                        if (line > 0)
-                        {
-                            numbersOnPreviousLine.AddRange(GetNumbersOnLine(line - 1));
-                        }
-
-                        if (line < 8)
-                        {
-                            numbersOnNextLine.AddRange(GetNumbersOnLine(line + 1));
-                        }
-                        if (line == 8)
-                        {
-                            numbersOnNextLine.AddRange(SudokuSubGrid.Digits);
-                        }
-
-                        if (column == 0)
-                        {
-                            numbersOnPreviousColumn.AddRange(SudokuSubGrid.Digits);
-                        }
-                        if (column > 0)
-                        {
-                            numbersOnPreviousColumn.AddRange(GetNumbersOnColumn(column - 1));
-                        }
-
-                        if (column < 8)
-                        {
-                            numbersOnNextColumn.AddRange(GetNumbersOnColumn(column + 1));
-                        }
-
-                        if (column == 8)
-                        {
-                            numbersOnNextColumn.AddRange(SudokuSubGrid.Digits);
-                        }
-                        if (numbersOnPreviousLine.Any(n => n == possibleValue.Value) &&
-                                    numbersOnNextLine.Any(n => n == possibleValue.Value) &&
-                                    numbersOnPreviousColumn.Any(n => n == possibleValue.Value) &&
-                                    numbersOnNextColumn.Any(n => n == possibleValue.Value)
-                                     && IsNumberAvailable(possibleValue.Value, line, column))
-                        {
-                            SetValue(possibleValue.Coordinate.X, possibleValue.Coordinate.Y, possibleValue.Value);
-                            valueHasBeenSet = true;
-                        }
-                    }
-                }
-            }
-
-            return valueHasBeenSet;
-        }
 
         /// <summary>
         /// Did the any subgrid has empty value
@@ -489,112 +230,76 @@ namespace BestterSudoku.Models
             return strb.ToString().Trim();
         }
 
-        public bool HasEmptyValue
-        {
-            get
-            {
-                bool hasEmptyValue = false;
-                for (int i = 0; i <= 2; i++)
-                {
-                    for (int j = 0; j <= 2; j++)
-                    {
-                        if (subGrids[i, j].HasEmptyValue)
-                        {
-                            hasEmptyValue = true;
-                            break;
-                        }
-                    }
-                }
-                return hasEmptyValue;
-            }
-        }
 
         bool AbsentSurLigne(byte k, int line)
         {
-            int gridLine = line % 3;
-            for (int grid = 0; grid < 3; grid++)
-            {
-                var subGrid = subGrids[line / 3, grid];
-                for (int j = 0; j <= 2; j++)
-                {
-                    if (subGrid.GetValue(gridLine, j).Value == k)
-                        return false;
-                }
-            }
+
+            for (int j = 0; j < 9; j++)
+                if (grids[line, j] == k)
+                    return false;
             return true;
         }
 
         bool AbsentSurColonne(byte k, int column)
         {
-            int gridColumn = column % 3;
-            for (int grid = 0; grid <= 2; grid++)
-            {
-                var subGrid = subGrids[grid, column / 3];
-                for (int i = 0; i <= 2; i++)
-                {
-                    if (subGrid.GetValue(i, gridColumn).Value == k)
-                        return false;
-                }
-            }
+
+            for (int i = 0; i < 9; i++)
+                if (grids[i, column] == k)
+                    return false;
             return true;
         }
 
-        bool AbsentSurBloc(byte k, int line, int column)
+        bool AbsentSurBloc(byte k, int i, int j)
         {
-            var currentGrid = subGrids[line / 3, column / 3];
-
-            for (int i = 0; i < 2; i++)
-            {
-                for (int j = 0; j < 2; j++)
-                {
-                    if (currentGrid.GetValue(i, j).Value == k)
+            int _i = i - (i % 3), _j = j - (j % 3);  // ou encore : _i = 3*(i/3), _j = 3*(j/3);
+            for (i = _i; i < _i + 3; i++)
+                for (j = _j; j < _j + 3; j++)
+                    if (grids[i, j] == k)
                         return false;
-                }
-            }
             return true;
         }
 
         bool EstValide(int position)
         {
-            Debug.WriteLine($" {nameof(position)}: {position} {nameof(numberOfCall)}: {numberOfCall} ");
+            //Debug.WriteLine($" {nameof(position)}: {position} {nameof(numberOfCall)}: {numberOfCall} ");
 
-            if (numberOfCall > Math.Pow(81,9))
+            if (numberOfCall > Math.Pow(81, 9))
             {
                 throw new NotSupportedException($"Too many call {numberOfCall} in {nameof(EstValide)}. Current position {position}");
             }
 
             numberOfCall++;
-            
-            if (position > 9 * 9)
+
+            if (position == 9 * 9)
             {
                 return true;
             }
 
             int line = position / 9, column = position % 9;
-            int gridLine = line % 3, gridColumn = column % 3;
 
-            var currentGrid = subGrids[line / 3, column / 3];
-
-            var currentValue = currentGrid.GetValue(gridLine, gridColumn);
-            if (currentValue.Value != 0)
+            if (grids[line, column] != 0)
             {
                 return EstValide(position + 1);
             }
 
             //backtracking
+            // énumération des valeurs possibles
             for (byte k = 1; k <= 9; k++)
             {
+                // Si la valeur est absente, donc autorisée
                 if (AbsentSurLigne(k, line) && AbsentSurColonne(k, column) && AbsentSurBloc(k, line, column))
                 {
-                    currentGrid.SetValue(gridLine, gridColumn, k);
+                    // On enregistre k dans la grille
+                    grids[line, column].SetValue(k);
+                    // On appelle récursivement la fonction estValide(), pour voir si ce choix est bon par la suite
                     if (EstValide(position + 1))
-                        return true;
+                        return true;  // Si le choix est bon, plus la peine de continuer, on renvoie true :)
                 }
             }
-
-            currentGrid.SetValue(gridLine, gridColumn, 0);
+            // Tous les chiffres ont été testés, aucun n'est bon, on réinitialise la case
+            grids[line, column].SetValue(0);
+            // Puis on retourne false :(
             return false;
-
         }
 
     }

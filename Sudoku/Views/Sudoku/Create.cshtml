@@ -45,25 +45,16 @@
         @if (@Model != null)
         {
             var grids = Model.GetValues();
-            @for (int i = 0; i <= 2; i++)
+            @for (int i = 0; i <= 8; i++)
             {
                 <tr>
-                    @for (int j = 0; j <= 2; j++)
+                    @for (int j = 0; j <= 8; j++)
                     {
-                        SudokuSubGrid grid = grids[i, j];
                         <td style="border: 2px solid black;">
                             <table>
-
-                                @for (int ia = 0; ia <= 2; ia++)
-                                {
-                                    <tr>
-
-                                        @for (int ja = 0; ja <= 2; ja++)
-                                        {
-                                            <td style="border: 3px solid fuchsia; width: 2em; height:2em;">@Html.Raw(grid.GetValue(ia, ja).Value.ToString())</td>
-                                        }
-                                    </tr>
-                                }
+                                <tr>
+                                    <td style="border: 3px solid fuchsia; width: 2em; height:2em;">@Html.Raw(grids[i, j].ToString())</td>
+                                </tr>
                             </table>
                         </td>
                     }

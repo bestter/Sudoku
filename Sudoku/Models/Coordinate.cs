@@ -25,7 +25,7 @@ namespace BestterSudoku.Models
         public byte Y { get; }
 
         public Coordinate(byte x, byte y)
-        {
+        {            
             X = x;
             Y = y;
         }

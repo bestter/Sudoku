@@ -211,7 +211,7 @@ namespace BestterSudoku.Models
 
         public long Resolve()
         {
-            EstValide(0);
+            IsValid(0);
             return numberOfCall;
         }
 
@@ -231,7 +231,7 @@ namespace BestterSudoku.Models
         }
 
 
-        bool AbsentSurLigne(byte k, int line)
+        private bool MissingInLine(byte k, int line)
         {
 
             for (int j = 0; j < 9; j++)
@@ -240,7 +240,7 @@ namespace BestterSudoku.Models
             return true;
         }
 
-        bool AbsentSurColonne(byte k, int column)
+        private bool MissingInColumn(byte k, int column)
         {
 
             for (int i = 0; i < 9; i++)
@@ -249,7 +249,7 @@ namespace BestterSudoku.Models
             return true;
         }
 
-        bool AbsentSurBloc(byte k, int i, int j)
+        private bool MissingInBlock(byte k, int i, int j)
         {
             int _i = i - (i % 3), _j = j - (j % 3);  // ou encore : _i = 3*(i/3), _j = 3*(j/3);
             for (i = _i; i < _i + 3; i++)
@@ -259,13 +259,17 @@ namespace BestterSudoku.Models
             return true;
         }
 
-        bool EstValide(int position)
+        private bool IsDefinition(int line, int column)
         {
-            //Debug.WriteLine($" {nameof(position)}: {position} {nameof(numberOfCall)}: {numberOfCall} ");
+            GridValue value= grids[line, column];
+            return value != null && value.IsDefinition;
+        }
 
+        private bool IsValid(int position)
+        {            
             if (numberOfCall > Math.Pow(81, 9))
             {
-                throw new NotSupportedException($"Too many call {numberOfCall} in {nameof(EstValide)}. Current position {position}");
+                throw new NotSupportedException($"Too many call {numberOfCall} in {nameof(IsValid)}. Current position {position}");
             }
 
             numberOfCall++;
@@ -279,7 +283,7 @@ namespace BestterSudoku.Models
 
             if (grids[line, column].Value != 0)
             {
-                return EstValide(position + 1);
+                return IsValid(position + 1);
             }
 
             //backtracking
@@ -287,17 +291,20 @@ namespace BestterSudoku.Models
             for (byte k = 1; k <= 9; k++)
             {
                 // Si la valeur est absente, donc autorisée
-                if (AbsentSurLigne(k, line) && AbsentSurColonne(k, column) && AbsentSurBloc(k, line, column))
+                if (MissingInLine(k, line) && MissingInColumn(k, column) && MissingInBlock(k, line, column) && !IsDefinition(line, column))
                 {
                     // On enregistre k dans la grille
                     grids[line, column].SetValue(k);
                     // On appelle récursivement la fonction estValide(), pour voir si ce choix est bon par la suite
-                    if (EstValide(position + 1))
+                    if (IsValid(position + 1))
                         return true;  // Si le choix est bon, plus la peine de continuer, on renvoie true :)
                 }
             }
             // Tous les chiffres ont été testés, aucun n'est bon, on réinitialise la case
-            grids[line, column].SetValue(0);
+            if (!IsDefinition(line, column))
+            {
+                grids[line, column].SetValue(0);
+            }
             // Puis on retourne false :(
             return false;
         }

@@ -31,7 +31,7 @@
   },
   "targets": {
     ".NETCoreApp,Version=v5.0": {
-      "BestterSudoku/1.0.0": {
+      "BestterSudoku/0.0.1": {
         "dependencies": {
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "5.0.2",
           "Microsoft.AspNetCore.Antiforgery": "5.0.0.0",
@@ -3268,7 +3268,7 @@
     }
   },
   "libraries": {
-    "BestterSudoku/1.0.0": {
+    "BestterSudoku/0.0.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

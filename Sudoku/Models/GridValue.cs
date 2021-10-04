@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with BestterSudoku.  If not, see <https://www.gnu.org/licenses/>
  */
+using Newtonsoft.Json;
 using System;
 
 namespace BestterSudoku.Models
@@ -21,6 +22,7 @@ namespace BestterSudoku.Models
     /// <summary>
     /// Grid value
     /// </summary>
+    [JsonObject(MemberSerialization.OptIn)]
     public class GridValue: IEquatable<GridValue>, IComparable, IComparable<GridValue>
     {
         /// <summary>
@@ -36,7 +38,8 @@ namespace BestterSudoku.Models
         /// <summary>
         /// The actual value
         /// </summary>
-        public byte Value { get; private set; }
+        [JsonProperty]
+        public byte Value { get; set; }
 
         public static implicit operator byte(GridValue v) => v.Value;
 

@@ -15,6 +15,7 @@
     along with BestterSudoku.  If not, see <https://www.gnu.org/licenses/>
  */
 using BestterSudoku.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,28 +26,32 @@ using System.Text;
 
 namespace BestterSudoku.Models
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class SudokuGrid
     {
+        /// <summary>
+        /// List of digits
+        /// </summary>
         internal static ReadOnlyCollection<byte> Digits = new(new List<byte> { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
 
         /// <summary>
         /// Creation time
-        /// </summary>
-        public DateTimeOffset CreationTime { get; set; }
-
+        /// </summary>        
+        public DateTimeOffset CreationTime { get; private set; }
 
         private long numberOfCall;
-
-        private readonly GridValue[,] grids;
+        
+        [JsonProperty]
+        public GridValue[,] Grids { get; set; }
 
         public SudokuGrid()
         {
-            grids = new GridValue[9, 9];
+            Grids = new GridValue[9, 9];
             for (byte i = 0; i <= 8; i++)
             {
                 for (byte j = 0; j <= 8; j++)
                 {
-                    grids[i, j] = new GridValue(i, j);
+                    Grids[i, j] = new GridValue(i, j);
                 }
             }
         }
@@ -66,13 +71,13 @@ namespace BestterSudoku.Models
                 throw new ArgumentOutOfRangeException(nameof(value), value, $"{nameof(value)} must be between 1 and 9");
             }
 
-            GridValue sgvalue = grids[line, column];
+            GridValue sgvalue = Grids[line, column];
             sgvalue.SetValue(value, isDefinition);
         }
 
         public GridValue[,] GetValues()
         {
-            return grids;
+            return Grids;
         }
 
         public void Generate()
@@ -85,7 +90,7 @@ namespace BestterSudoku.Models
             for (int i = 0; i < items.Length; i++)
             {
                 int line = i / 3, column = i % 3;
-                grids[line + 3, column + 3].SetValue(items[i]);
+                Grids[line + 3, column + 3].SetValue(items[i]);
             }
 
 
@@ -138,7 +143,7 @@ namespace BestterSudoku.Models
 
             for (int j = 0; j <= 8; j++)
             {
-                byte value = grids[line, j];
+                byte value = Grids[line, j];
                 if (value != 0)
                 {
                     numbersOnLine.Add(value);
@@ -153,7 +158,7 @@ namespace BestterSudoku.Models
 
             for (int i = 0; i <= 8; i++)
             {
-                byte value = grids[i, column];
+                byte value = Grids[i, column];
                 if (value != 0)
                 {
                     numbersOnColumn.Add(value);
@@ -170,7 +175,7 @@ namespace BestterSudoku.Models
             {
                 for (int j = column; j <= 2 + column; j++)
                 {
-                    byte value = grids[i, j];
+                    byte value = Grids[i, j];
                     if (value != 0)
                     {
                         numberInGrid.Add(value);
@@ -235,7 +240,7 @@ namespace BestterSudoku.Models
         {
 
             for (int j = 0; j < 9; j++)
-                if (grids[line, j].Value == k)
+                if (Grids[line, j].Value == k)
                     return false;
             return true;
         }
@@ -244,7 +249,7 @@ namespace BestterSudoku.Models
         {
 
             for (int i = 0; i < 9; i++)
-                if (grids[i, column].Value == k)
+                if (Grids[i, column].Value == k)
                     return false;
             return true;
         }
@@ -254,14 +259,14 @@ namespace BestterSudoku.Models
             int _i = i - (i % 3), _j = j - (j % 3);  // ou encore : _i = 3*(i/3), _j = 3*(j/3);
             for (i = _i; i < _i + 3; i++)
                 for (j = _j; j < _j + 3; j++)
-                    if (grids[i, j].Value == k)
+                    if (Grids[i, j].Value == k)
                         return false;
             return true;
         }
 
         private bool IsDefinition(int line, int column)
         {
-            GridValue value= grids[line, column];
+            GridValue value= Grids[line, column];
             return value != null && value.IsDefinition;
         }
 
@@ -281,7 +286,7 @@ namespace BestterSudoku.Models
 
             int line = position / 9, column = position % 9;
 
-            if (grids[line, column].Value != 0)
+            if (Grids[line, column].Value != 0)
             {
                 return IsValid(position + 1);
             }
@@ -294,7 +299,7 @@ namespace BestterSudoku.Models
                 if (MissingInLine(k, line) && MissingInColumn(k, column) && MissingInBlock(k, line, column) && !IsDefinition(line, column))
                 {
                     // On enregistre k dans la grille
-                    grids[line, column].SetValue(k);
+                    Grids[line, column].SetValue(k);
                     // On appelle récursivement la fonction estValide(), pour voir si ce choix est bon par la suite
                     if (IsValid(position + 1))
                         return true;  // Si le choix est bon, plus la peine de continuer, on renvoie true :)
@@ -303,7 +308,7 @@ namespace BestterSudoku.Models
             // Tous les chiffres ont été testés, aucun n'est bon, on réinitialise la case
             if (!IsDefinition(line, column))
             {
-                grids[line, column].SetValue(0);
+                Grids[line, column].SetValue(0);
             }
             // Puis on retourne false :(
             return false;

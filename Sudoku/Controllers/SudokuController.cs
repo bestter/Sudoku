@@ -35,10 +35,35 @@ namespace BestterSudoku.Controllers
         public ActionResult Create()
         {
             SudokuGrid grid = new();
-            grid.Generate();
-
+            
             return View(grid);
         }
+
+        // POST: SudokuController/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(SudokuGrid grid)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    //db.AddToMovies(newMovie);
+                    //db.SaveChanges();
+
+                    return Resolve(grid);
+                }
+                else
+                {
+                    return View(grid);
+                }
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
 
 
         public ActionResult Resolve()
@@ -180,22 +205,30 @@ namespace BestterSudoku.Controllers
             return View(new ResolveValue(grid, nbTry, stopwatch.Elapsed));
         }
 
-
-        // POST: SudokuController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Resolve(SudokuGrid grid)
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            long nbTry = 0;
             try
             {
-                return RedirectToAction(nameof(Index));
+                //nbTry = grid.Resolve();
+                nbTry = grid.Resolve();
             }
-            catch
+            catch (NotSupportedException e)
             {
-                return View();
+                Debug.WriteLine(e);
             }
-        }
+            finally
+            {
+                stopwatch.Stop();
+            }
 
+            return View(new ResolveValue(grid, nbTry, stopwatch.Elapsed));
+        }
+               
+        
         // GET: SudokuController/Edit/5
 
         // POST: SudokuController/Edit/5

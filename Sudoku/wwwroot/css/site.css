@@ -69,3 +69,85 @@ body {
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
 }
+
+
+
+
+/*html {
+    opacity: .3;
+}*/
+
+.sudokuTable {
+    border-collapse: collapse;
+}
+
+.sudokuCell {
+}
+
+.sudokuNumberBox {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    border: solid 1px #000;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+    .sudokuNumberBox div {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: Arial;
+        font-size: 28px;
+        color: #000;
+        cursor: default;
+/*        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;*/
+        user-select: none;
+    }
+
+    .sudokuNumberBox.selectedCell {
+        border: solid 3px #69f;
+        background-color: #ACF;
+    }
+
+    .sudokuNumberBox.secondarySelected {
+        background-color: #e0e0e0;
+    }
+
+    .sudokuNumberBox.sameNumber {
+        border: solid 2px #69f;
+    }
+
+    .sudokuNumberBox.locked {
+        font-weight: bold;
+        color: #444;
+        background-color: #ccc;
+    }
+
+        .sudokuNumberBox.locked.selectedCell {
+            background-color: #aaa;
+            border-color: #333;
+        }
+
+    .sudokuNumberBox.error {
+        border-color: #A00;
+        background-color: #FCC;
+    }
+
+        .sudokuNumberBox.error.selectedCell {
+            border-color: #F00;
+            background-color: #F77;
+        }
+
+.hspace {
+    padding-right: 5px;
+}
+
+.vspace {
+    padding-bottom: 5px;
+}

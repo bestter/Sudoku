@@ -41,7 +41,7 @@
 </div>
 
 <div>
-    <table style="border: 1px solid black;">
+    <table class="sudokuTable">
         @if (@Model != null)
         {
             var grids = Model.GetValues();
@@ -50,12 +50,10 @@
                 <tr>
                     @for (int j = 0; j <= 8; j++)
                     {
-                        <td style="border: 2px solid black;">
-                            <table>
-                                <tr>
-                                    <td style="border: 3px solid fuchsia; width: 2em; height:2em;">@Html.Raw(grids[i, j].ToString())</td>
-                                </tr>
-                            </table>
+                        <td class="sudokuCell">
+                            <div class="sudokuNumberBox">
+                                @Html.Raw(grids[i, j].Value.ToString())
+                            </div>
                         </td>
                     }
                 </tr>

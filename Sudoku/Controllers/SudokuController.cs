@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Diagnostics;
+using Serilog;
+
 
 namespace BestterSudoku.Controllers
 {
@@ -32,17 +34,27 @@ namespace BestterSudoku.Controllers
 
 
         // GET: SudokuController/Create
+        [HttpPost]
         public ActionResult Create()
         {
-            SudokuGrid grid = new();
-            
-            return View(grid);
+            try
+            {
+                SudokuGrid grid = new();
+
+                return new JsonResult(grid);
+            }
+            catch (Exception e)
+            {
+                Log.Fatal(e, $"Error in {nameof(Create)}");
+                throw;
+                //return View();
+            }
         }
 
         // POST: SudokuController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(SudokuGrid grid)
+        public ActionResult ResolveSudoku(SudokuGrid grid)
         {
             try
             {
@@ -58,8 +70,9 @@ namespace BestterSudoku.Controllers
                     return View(grid);
                 }
             }
-            catch
+            catch(Exception e)
             {
+                Log.Fatal(e, $"Error in {nameof(Create)}");
                 return View();
             }
         }
@@ -195,7 +208,7 @@ namespace BestterSudoku.Controllers
             }
             catch (NotSupportedException e)
             {
-                Debug.WriteLine(e);
+                Log.Fatal(e, $"Error in {nameof(Resolve)}");
             }
             finally
             {
@@ -218,7 +231,7 @@ namespace BestterSudoku.Controllers
             }
             catch (NotSupportedException e)
             {
-                Debug.WriteLine(e);
+                Log.Fatal(e, $"Error in {nameof(Resolve)}");
             }
             finally
             {

@@ -20,14 +20,32 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
+using System;
+using System.IO;
 
 namespace BestterSudoku
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            var contentRoot = env.ContentRootPath;
+            
+            DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(contentRoot, "logs"));
+            if (!directoryInfo.Exists)
+            {
+                directoryInfo.Create();
+                directoryInfo.Refresh();
+            }
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File($"{directoryInfo.FullName}/{nameof(BestterSudoku)}.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
+            Log.Logger.Debug($"{nameof(BestterSudoku)} started at {DateTimeOffset.Now}");
         }
 
         public IConfiguration Configuration { get; }
@@ -35,7 +53,7 @@ namespace BestterSudoku
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddNewtonsoftJson();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

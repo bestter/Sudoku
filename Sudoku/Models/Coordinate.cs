@@ -15,13 +15,24 @@
     along with BestterSudoku.  If not, see <https://www.gnu.org/licenses/>
  */
 
+using Newtonsoft.Json;
 using System;
 
 namespace BestterSudoku.Models
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class Coordinate : IEquatable<Coordinate>, IComparable, IComparable<Coordinate>
     {
+        /// <summary>
+        /// X
+        /// </summary>
+        [JsonProperty]
         public byte X { get; }
+        
+        /// <summary>
+        /// Y
+        /// </summary>
+        [JsonProperty]
         public byte Y { get; }
 
         public Coordinate(byte x, byte y)

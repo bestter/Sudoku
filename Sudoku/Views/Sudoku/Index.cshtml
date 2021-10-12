@@ -18,10 +18,67 @@
     ViewData["Title"] = "Index";
 }
 
+
+@section Scripts
+    {
+    <script type="text/javascript">
+        var sudoku = new Sudoku();
+        $(function () {
+            $("#btnCreate").click(function () {
+                //alert("");               
+             
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Create")',
+                    //data: '{std: ' + JSON.stringify(std) + '}',
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        debugger;
+                        sudoku.importPuzzle(data);
+                        //var html = '';
+                        //$('#sudoku').addClass('sudokuTable');
+                        //console.dir(data);
+                        //alert("Data has been added successfully.");
+                        //for (var i = 0; i < 9; i++) {
+                        //    html += '\t<tr>';
+
+                        //    for (var j = 0; j < 9; j++) {
+                        //        html += '\t\t<td class="sudokuCell">';
+
+                        //        html += '\t\t\t<div class="sudokuNumberBox">';
+                        //        html += data.Grids[i, j].Value;
+                        //        html += '\t\t\t</div>';
+
+                        //        html += '\t\t</td>';
+                        //    }
+
+                        //    html += '\t</tr>';
+                        //}
+                       
+                        //$('#sudoku').append(html);                        
+                    },
+                    error: function (ex) {
+                        debugger;
+                        alert(ex.responseText);                        
+                    }
+                });
+                return false;
+            });
+        });
+
+        
+        
+    </script>
+}
+
+
 <h1>Index</h1>
 <div>
-    @Html.ActionLink("Create", "Create")
+    <input class="btn btn-primary" name="submitButton" id="btnCreate" value="Create" type="button" />
 </div>
+
+<div id="sudoku"></div>
 
 <div>
     @Html.ActionLink("Resolve", "Resolve")

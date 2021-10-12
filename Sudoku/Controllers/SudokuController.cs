@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Diagnostics;
+using Serilog;
+
 
 namespace BestterSudoku.Controllers
 {
@@ -32,13 +34,49 @@ namespace BestterSudoku.Controllers
 
 
         // GET: SudokuController/Create
+        [HttpPost]
         public ActionResult Create()
         {
-            SudokuGrid grid = new();
-            grid.Generate();
+            try
+            {
+                SudokuGrid grid = new();
 
-            return View(grid);
+                return new JsonResult(grid);
+            }
+            catch (Exception e)
+            {
+                Log.Fatal(e, $"Error in {nameof(Create)}");
+                throw;
+                //return View();
+            }
         }
+
+        // POST: SudokuController/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ResolveSudoku(SudokuGrid grid)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    //db.AddToMovies(newMovie);
+                    //db.SaveChanges();
+
+                    return Resolve(grid);
+                }
+                else
+                {
+                    return View(grid);
+                }
+            }
+            catch(Exception e)
+            {
+                Log.Fatal(e, $"Error in {nameof(Create)}");
+                return View();
+            }
+        }
+
 
 
         public ActionResult Resolve()
@@ -170,7 +208,7 @@ namespace BestterSudoku.Controllers
             }
             catch (NotSupportedException e)
             {
-                Debug.WriteLine(e);
+                Log.Fatal(e, $"Error in {nameof(Resolve)}");
             }
             finally
             {
@@ -180,22 +218,30 @@ namespace BestterSudoku.Controllers
             return View(new ResolveValue(grid, nbTry, stopwatch.Elapsed));
         }
 
-
-        // POST: SudokuController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Resolve(SudokuGrid grid)
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            long nbTry = 0;
             try
             {
-                return RedirectToAction(nameof(Index));
+                //nbTry = grid.Resolve();
+                nbTry = grid.Resolve();
             }
-            catch
+            catch (NotSupportedException e)
             {
-                return View();
+                Log.Fatal(e, $"Error in {nameof(Resolve)}");
             }
-        }
+            finally
+            {
+                stopwatch.Stop();
+            }
 
+            return View(new ResolveValue(grid, nbTry, stopwatch.Elapsed));
+        }
+               
+        
         // GET: SudokuController/Edit/5
 
         // POST: SudokuController/Edit/5
